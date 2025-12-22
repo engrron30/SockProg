@@ -4,12 +4,12 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 8080
+#define PORT			8080
+#define CLIENT_MSG_STR		"Hello from client!"
 
 int main() {
     struct sockaddr_in serv_addr;
     char buffer[1024] = {0};
-    char *hello = "Hello from client";
 
     // 1. Create the client socket
     int sock = 0;
@@ -33,7 +33,7 @@ int main() {
     }
 
     // 3. Send data to server
-    send(sock, hello, strlen(hello), 0);
+    send(sock, CLIENT_MSG_STR, strlen(CLIENT_MSG_STR), 0);
     
     // 4. Read the server's response
     read(sock, buffer, 1024);
