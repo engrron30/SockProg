@@ -4,8 +4,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT			8080
-#define CLIENT_MSG_STR		"Hello from client!"
+#define SERVER_IP_ADDR          "127.0.0.1"
+#define SERVER_PORT             8080
+#define CLIENT_MSG_STR          "Hello from client!"
 
 int main() {
     struct sockaddr_in serv_addr;
@@ -21,8 +22,8 @@ int main() {
 
     // Convert IPv4 and IPv6 addresses from text to binary form
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-    inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr);
+    serv_addr.sin_port = htons(SERVER_PORT);
+    inet_pton(AF_INET, SERVER_IP_ADDR, &serv_addr.sin_addr);
 
     // 2. Connect to server
     int connect_ret = 0;
