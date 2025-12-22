@@ -9,8 +9,6 @@
 #define CLIENT_MSG_STR          "Hello from client!"
 
 int main() {
-    struct sockaddr_in serv_addr;
-    char buffer[1024] = {0};
 
     // 1. Create the client socket
     int sock = 0;
@@ -20,7 +18,8 @@ int main() {
         return -1;
     }
 
-    // Convert IPv4 and IPv6 addresses from text to binary form
+    // Prepare the server socket struct to connect
+    struct sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(SERVER_PORT);
     inet_pton(AF_INET, SERVER_IP_ADDR, &serv_addr.sin_addr);
@@ -37,6 +36,7 @@ int main() {
     send(sock, CLIENT_MSG_STR, strlen(CLIENT_MSG_STR), 0);
     
     // 4. Read the server's response
+    char buffer[1024] = {0};
     read(sock, buffer, 1024);
     printf("Server: %s\n", buffer);
 
