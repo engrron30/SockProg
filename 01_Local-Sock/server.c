@@ -4,13 +4,13 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 8080
+#define SERVER_MSG_STR		"Hello from server"
+#define PORT 			8080
 
 int main() {
     int server_fd, new_socket;
     struct sockaddr_in address;
     char buffer[1024] = {0};
-    char *message = "Hello from server";
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
@@ -29,7 +29,7 @@ int main() {
     new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
     read(new_socket, buffer, 1024);
     printf("Client: %s\n", buffer);
-    send(new_socket, message, strlen(message), 0);
+    send(new_socket, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
     printf("Message sent\n");
 
     close(new_socket);
