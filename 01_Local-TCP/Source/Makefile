@@ -1,4 +1,7 @@
+# Commands
 GCC = gcc
+TEST = test
+MKDIR = mkdir
 
 # Output Files
 OUT_DIR ?= $(CURDIR)/../Output
@@ -13,7 +16,7 @@ build:
 	$(GCC) client.c -o $(OUT_DIR)/$(CLIENT_BIN)
 
 prep_build:
-	test -d $(OUT_DIR) || mkdir -p $(OUT_DIR)
+	$(TEST) -d $(OUT_DIR) || $(MKDIR) -p $(OUT_DIR)
 
 clean:
 	rm -rf $(OUT_DIR)
