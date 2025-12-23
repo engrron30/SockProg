@@ -25,18 +25,19 @@ int main() {
 
     const char *msg = "Hello from UDP client";
 
-    // Send message
+    // 2. Send message
     sendto(sockfd, msg, strlen(msg), 0,
            (const struct sockaddr *)&servaddr, sizeof(servaddr));
     printf("Message sent.\n");
 
-    // Receive server response
+    // 3. Receive server response
     socklen_t len = sizeof(servaddr);
     int n = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
                      (struct sockaddr *)&servaddr, &len);
     buffer[n] = '\0';
     printf("Server: %s\n", buffer);
 
+    // 4. Close socket
     close(sockfd);
     return 0;
 }
