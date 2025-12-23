@@ -1,10 +1,14 @@
+GCC = gcc
+
+# Output Files
+OUT_DIR ?= ../Output
 SERVER_BIN = server
 CLIENT_BIN = client
 
 .PHONY: all clean
 all:
-	gcc server.c -o $(SERVER_BIN)
-	gcc client.c -o $(CLIENT_BIN)
+	$(GCC) server.c -o $(OUT_DIR)/$(SERVER_BIN)
+	$(GCC) client.c -o $(OUT_DIR)/$(CLIENT_BIN)
 
 clean:
-	rm -rf $(SERVER_BIN) $(CLIENT_BIN)
+	rm -rf $(OUT_DIR)
