@@ -8,7 +8,6 @@
 
 int main() {
     char buffer[1024];
-    struct sockaddr_in servaddr;
 
     // 1. Create UDP socket for client
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -17,6 +16,8 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    // Prepare server address details
+    struct sockaddr_in servaddr;
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(PORT);
