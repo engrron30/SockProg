@@ -7,12 +7,12 @@
 #define PORT 8080
 
 int main() {
-    int sockfd;
     char buffer[1024];
     struct sockaddr_in servaddr, cliaddr;
 
     // Create UDP socket
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
