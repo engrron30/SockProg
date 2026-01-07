@@ -3,6 +3,8 @@ GCC = gcc
 TEST = test
 MKDIR = mkdir
 
+CFLAGS += -DSERVER_REUSE_ADDR
+
 # Output Files
 OUT_DIR ?= $(CURDIR)/../Output
 SERVER_BIN = server
@@ -12,7 +14,7 @@ CLIENT_BIN = client
 all: clean prep_build build
 
 build:
-	$(GCC) server.c -o $(OUT_DIR)/$(SERVER_BIN)
+	$(GCC) $(CFLAGS) server.c -o $(OUT_DIR)/$(SERVER_BIN)
 	$(GCC) client.c -o $(OUT_DIR)/$(CLIENT_BIN)
 
 prep_build:

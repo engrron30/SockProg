@@ -17,6 +17,14 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+#ifdef SERVER_REUSE_ADDR
+    int opt = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("setsockopt(SO_REUSEADDR)");
+        exit(EXIT_FAILURE);
+    }
+#endif
+
     // 2. Bind the socket to the desired port
     struct sockaddr_in address;
     address.sin_family = AF_INET;
