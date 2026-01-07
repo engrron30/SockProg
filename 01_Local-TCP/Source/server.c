@@ -30,7 +30,11 @@ int main() {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
-    bind(server_fd, (struct sockaddr*)&address, sizeof(address));
+
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == -1) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
 
     // 3. Listen for incoming connections
     int listen_ret = listen(server_fd, 3);
