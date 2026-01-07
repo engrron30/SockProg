@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SERVER_IP_ADDR          "192.168.88.133"
+#define SERVER_IP_ADDR          "127.0.0.1"
 #define SERVER_PORT             8080
 #define CLIENT_MSG_STR          "Hello from client!"
 

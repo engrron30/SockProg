@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SERVER_MSG_STR		"Hello from server"
-#define PORT 			8080
+#define SERVER_MSG_STR          "Hello from server"
+#define PORT                    8080
 
 int main() {
 
@@ -25,7 +25,13 @@ int main() {
     bind(server_fd, (struct sockaddr*)&address, sizeof(address));
 
     // 3. Listen for incoming connections
-    listen(server_fd, 3);
+    int listen_ret = listen(server_fd, 3);
+    if (listen_ret < 0)
+    {
+        perror("listen failed");
+        exit(EXIT_FAILURE);
+    }
+    printf("[SERVER] TCP server is listening...\n");
 
     // 4. Accept a client connection
     int new_socket;
