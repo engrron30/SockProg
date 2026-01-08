@@ -26,12 +26,9 @@ int main() {
 
     struct sockaddr_in serv_addr;
     init_servaddr(&serv_addr);
-
-    // 2. Connect to server
-    int connect_ret = 0;
-    connect_ret = connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-    if (connect_ret < 0) {
-	    printf("Connection failed!\n");
+    if ((connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0)
+    {
+	    perror("Connection failed!\n");
 	    return -1;
     }
 
