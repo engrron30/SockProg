@@ -57,12 +57,13 @@ int main() {
     {
         memset(client_msg, 0, CLIENT_MSG_STR_LEN);
 
-        if (read(client_fd, client_msg, CLIENT_MSG_STR_LEN) == -1)
-        {
-            perror("Failed to read message from client!");
+        int client_msg_len = recv(client_fd, client_msg, sizeof(client_msg) - 1, 0);
+        if (client_msg_len <= 0) {
+            printf("[SERVER] Client disconnected.\n");
             break;
         }
 
+        client_msg[client_msg_len] = '\0';
         printf("CLIENT: %s\n", client_msg);
         send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
     }
