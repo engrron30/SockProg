@@ -47,22 +47,26 @@ int main() {
     printf("[SERVER] TCP server is listening...\n");
 
     // 4. Accept a client connection
-    int new_socket;
     int addrlen = sizeof(address);
-    new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+    int client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
     printf("[SERVER] Client is connected. Waiting for messages...\n");
 
     // 5. Read data from client
     char client_msg[CLIENT_MSG_STR_LEN] = {0};
-    read(new_socket, client_msg, CLIENT_MSG_STR_LEN);
-    printf("CLIENT: %s\n", client_msg);
+    while (1)
+    {
+        if (read(client_fd, client_msg, CLIENT_MSG_STR_LEN) == -1)
+        {
+            perror("Failed to read message from client!");
+            break;
+        }
 
-    // 6. Send a response to client
-    send(new_socket, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
-    printf("Message sent\n");
+        printf("CLIENT: %s\n", client_msg);
+        send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+    }
 
     // 7. Close the connection
-    close(new_socket);
+    close(client_fd);
     close(server_fd);
     return 0;
 }
