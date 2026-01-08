@@ -35,10 +35,13 @@ int main() {
     }
 
     // 3. Send data to server
-    char client_msg[CLIENT_MSG_STR_LEN] = {0};
-    char server_msg[SERVER_MSG_STR_LEN] = {0};
+    char client_msg[CLIENT_MSG_STR_LEN];
+    char server_msg[SERVER_MSG_STR_LEN];
     while (1)
     {
+        memset(client_msg, '\0', sizeof(client_msg));
+        memset(server_msg, '\0', sizeof(server_msg));
+
         // Create client message from user's input
         printf("CLIENT: ");
         fgets(client_msg, sizeof(client_msg), stdin);

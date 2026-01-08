@@ -52,9 +52,11 @@ int main() {
     printf("[SERVER] Client is connected. Waiting for messages...\n");
 
     // 5. Read data from client
-    char client_msg[CLIENT_MSG_STR_LEN] = {0};
+    char client_msg[CLIENT_MSG_STR_LEN];
     while (1)
     {
+        memset(client_msg, 0, CLIENT_MSG_STR_LEN);
+
         if (read(client_fd, client_msg, CLIENT_MSG_STR_LEN) == -1)
         {
             perror("Failed to read message from client!");
