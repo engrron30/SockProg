@@ -35,10 +35,18 @@ int main() {
 
     // 3. Send data to server
     char client_msg[CLIENT_MSG_STR_LEN];
-    fgets(client_msg, sizeof(client_msg), stdin);
-    client_msg[strcspn(client_msg, "\n")] = 0;
-    send(sock, client_msg, strlen(client_msg), 0);
-    
+    while (1)
+    {
+        printf("CLIENT: ");
+        fgets(client_msg, sizeof(client_msg), stdin);
+        client_msg[strcspn(client_msg, "\n")] = 0;
+
+        if (strcmp(client_msg, "exit") == 0)
+            break;
+
+        send(sock, client_msg, strlen(client_msg), 0);
+    }
+
     // 4. Read the server's response
     char buffer[1024] = {0};
     read(sock, buffer, 1024);
