@@ -44,7 +44,11 @@ int main() {
         if (strcmp(client_msg, "exit") == 0)
             break;
 
-        send(sock, client_msg, strlen(client_msg), 0);
+        if (send(sock, client_msg, strlen(client_msg), 0) == -1)
+        {
+            printf("Sending failed!\n");
+            break;
+        }
     }
 
     // 4. Read the server's response
