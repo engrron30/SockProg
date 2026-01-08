@@ -10,19 +10,22 @@
 #define CLIENT_MSG_STR          "Hello from client!"
 #define CLIENT_MSG_STR_LEN      1024
 
+#define SOCKET_CREATION_FAILED  -1
+
 int init_sock(int *sock_fd);
+void init_servaddr(struct sockaddr_in *serv_addr);
 
 int main() {
 
     // 1. Create the client socket
     int sock = 0;
-    init_sock(&sock);
+    if (init_sock(&sock) == SOCKET_CREATION_FAILED)
+    {
+        perror("Socket creation failed!");
+    }
 
-    // Prepare the server socket struct to connect
     struct sockaddr_in serv_addr;
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(SERVER_PORT);
-    inet_pton(AF_INET, SERVER_IP_ADDR, &serv_addr.sin_addr);
+    init_servaddr(&serv_addr);
 
     // 2. Connect to server
     int connect_ret = 0;
@@ -74,4 +77,11 @@ int init_sock(int *sock_fd)
     }
 
     return *sock_fd;
+}
+
+void init_servaddr(struct sockaddr_in *serv_addr)
+{
+    serv_addr->sin_family = AF_INET;
+    serv_addr->sin_port = htons(SERVER_PORT);
+    inet_pton(AF_INET, SERVER_IP_ADDR, &serv_addr->sin_addr);
 }
