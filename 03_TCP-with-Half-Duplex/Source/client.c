@@ -10,15 +10,13 @@
 #define CLIENT_MSG_STR          "Hello from client!"
 #define CLIENT_MSG_STR_LEN      1024
 
+int init_sock(int *sock_fd);
+
 int main() {
 
     // 1. Create the client socket
     int sock = 0;
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
-        perror("Socket creation error");
-        return -1;
-    }
+    init_sock(&sock);
 
     // Prepare the server socket struct to connect
     struct sockaddr_in serv_addr;
@@ -67,3 +65,13 @@ int main() {
     return 0;
 }
 
+int init_sock(int *sock_fd)
+{
+    *sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (*sock_fd < 0) {
+        perror("Socket creation error");
+        return -1;
+    }
+
+    return *sock_fd;
+}
