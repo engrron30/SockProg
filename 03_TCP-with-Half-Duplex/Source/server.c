@@ -4,8 +4,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define SERVER_MSG_STR          "Hello from server"
-#define PORT                    8080
+#define SERVER_MSG_STR          "Acknowledged from server!"
+#define SERVER_PORT             8080
+#define CLIENT_MSG_STR_LEN      1024
 
 int main() {
 
@@ -29,7 +30,7 @@ int main() {
     struct sockaddr_in address;
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(SERVER_PORT);
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == -1) {
         perror("bind failed");
@@ -49,11 +50,12 @@ int main() {
     int new_socket;
     int addrlen = sizeof(address);
     new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+    printf("[SERVER] Client is connected. Waiting for messages...\n");
 
     // 5. Read data from client
-    char buffer[1024] = {0};
-    read(new_socket, buffer, 1024);
-    printf("Client: %s\n", buffer);
+    char client_msg[CLIENT_MSG_STR_LEN] = {0};
+    read(new_socket, client_msg, CLIENT_MSG_STR_LEN);
+    printf("CLIENT: %s\n", client_msg);
 
     // 6. Send a response to client
     send(new_socket, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);

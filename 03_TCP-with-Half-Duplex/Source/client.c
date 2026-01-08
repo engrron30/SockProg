@@ -6,6 +6,7 @@
 
 #define SERVER_IP_ADDR          "127.0.0.1"
 #define SERVER_PORT             8080
+#define SERVER_MSG_STR_LEN      1024
 #define CLIENT_MSG_STR          "Hello from client!"
 #define CLIENT_MSG_STR_LEN      1024
 
@@ -34,9 +35,11 @@ int main() {
     }
 
     // 3. Send data to server
-    char client_msg[CLIENT_MSG_STR_LEN];
+    char client_msg[CLIENT_MSG_STR_LEN] = {0};
+    char server_msg[SERVER_MSG_STR_LEN] = {0};
     while (1)
     {
+        // Create client message from user's input
         printf("CLIENT: ");
         fgets(client_msg, sizeof(client_msg), stdin);
         client_msg[strcspn(client_msg, "\n")] = 0;
@@ -44,17 +47,17 @@ int main() {
         if (strcmp(client_msg, "exit") == 0)
             break;
 
+        // Send the client string to server
         if (send(sock, client_msg, strlen(client_msg), 0) == -1)
         {
             printf("Sending failed!\n");
             break;
         }
-    }
 
-    // 4. Read the server's response
-    char buffer[1024] = {0};
-    read(sock, buffer, 1024);
-    printf("Server: %s\n", buffer);
+        // Read the server's response
+        read(sock, server_msg, SERVER_MSG_STR_LEN);
+        printf("SERVER: %s\n", server_msg);
+    }
 
     // Close the socket
     close(sock);
