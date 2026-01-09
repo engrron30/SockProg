@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <pthread.h>
 
 #define SERVER_MSG_STR          "Acknowledged from server!"
 #define SERVER_PORT             8080
