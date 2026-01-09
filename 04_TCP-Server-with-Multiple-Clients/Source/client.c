@@ -32,6 +32,7 @@ int main() {
 	    perror("Client cannot connect to server!\n");
 	    return -1;
     }
+    printf("[CLIENT] Client is successfully connected to server!\n");
 
     // 3. Send data to server
     char client_msg[CLIENT_MSG_STR_LEN];

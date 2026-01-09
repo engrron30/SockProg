@@ -8,12 +8,13 @@
 #define SERVER_PORT             8080
 #define CLIENT_MSG_STR_LEN      1024
 
+#define SOCKET_CREATION_FAILED      -1
+
 int main() {
 
     // 1. Create socket file descriptor
-    int server_fd;
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == -1) {
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == SOCKET_CREATION_FAILED) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
@@ -21,7 +22,7 @@ int main() {
 #ifdef SERVER_REUSE_ADDR
     int opt = 1;
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        perror("setsockopt(SO_REUSEADDR)");
+        perror("Socket failed to be reused!");
         exit(EXIT_FAILURE);
     }
 #endif
@@ -38,8 +39,7 @@ int main() {
     }
 
     // 3. Listen for incoming connections
-    int listen_ret = listen(server_fd, 3);
-    if (listen_ret < 0)
+    if (listen(server_fd, 3) < 0)
     {
         perror("listen failed");
         exit(EXIT_FAILURE);
