@@ -32,7 +32,6 @@ int main() {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(SERVER_PORT);
-
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == -1) {
         perror("bind failed");
         exit(EXIT_FAILURE);
@@ -49,6 +48,10 @@ int main() {
     // 4. Accept a client connection
     int addrlen = sizeof(address);
     int client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+    if (client_fd < 0)
+    {
+        perror("Accepting client connection failed!");
+    }
     printf("[SERVER] Client is connected. Waiting for messages...\n");
 
     // 5. Read data from client
