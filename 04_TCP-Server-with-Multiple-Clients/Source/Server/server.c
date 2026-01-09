@@ -50,8 +50,6 @@ int main() {
     int client_fd;
     accept_client_comm(server_fd, (struct sockaddr*) &server_address, &client_fd);
 
-    // 7. Close the connection
-    //close(client_fd);
     close(server_fd);
     return 0;
 }
