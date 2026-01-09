@@ -50,7 +50,7 @@ int main() {
         // Send the client string to server
         if (send(sock, client_msg, strlen(client_msg), 0) == -1)
         {
-            printf("Sending failed!\n");
+            perror("Sending failed!");
             break;
         }
 
