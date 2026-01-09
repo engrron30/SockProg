@@ -18,13 +18,13 @@ void init_servaddr(struct sockaddr_in *serv_addr);
 int main() {
 
     // 1. Create the client socket
-    int sock = 0;
-    if (init_sock(&sock) == SOCKET_CREATION_FAILED)
+    int client_fd = 0;
+    if (init_sock(&client_fd) == SOCKET_CREATION_FAILED)
         exit(EXIT_FAILURE);
 
     struct sockaddr_in serv_addr;
     init_servaddr(&serv_addr);
-    if ((connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0)
+    if ((connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0)
     {
 	    perror("Client cannot connect to server!\n");
 	    return -1;
@@ -50,19 +50,19 @@ int main() {
             continue;
 
         // Send the client string to server
-        if (send(sock, client_msg, strlen(client_msg), 0) == -1)
+        if (send(client_fd, client_msg, strlen(client_msg), 0) == -1)
         {
             perror("Sending failed!");
             break;
         }
 
         // Read the server's response
-        read(sock, server_msg, SERVER_MSG_STR_LEN);
+        read(client_fd, server_msg, SERVER_MSG_STR_LEN);
         printf("SERVER: %s\n", server_msg);
     }
 
     // Close the socket
-    close(sock);
+    close(client_fd);
     return 0;
 }
 
