@@ -5,14 +5,14 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#define SERVER_MSG_STR          "Acknowledged from server!"
-#define SERVER_PORT             8080
-#define CLIENT_MSG_STR_LEN      1024
-#define MAX_CLIENT_NUM          10
+#define SERVER_MSG_STR              "Acknowledged from server!"
+#define SERVER_PORT                 8080
+#define CLIENT_MSG_STR_LEN          1024
+#define MAX_CLIENT_NUM              10
 
 #define SOCKET_CREATION_FAILED      -1
 
-void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd);
+void accept_client_comm(int server_fd, struct sockaddr *server_address);
 void *handle_client_comm(void *args);
 
 int main() {
@@ -47,10 +47,9 @@ int main() {
         perror("listen failed");
         exit(EXIT_FAILURE);
     }
-    printf("[SERVER] TCP server is listening...\n");
 
-    int client_fd;
-    accept_client_comm(server_fd, (struct sockaddr*) &server_address, &client_fd);
+    printf("[SERVER] TCP server is listening...\n");
+    accept_client_comm(server_fd, (struct sockaddr*) &server_address);
 
     close(server_fd);
     return 0;
@@ -65,7 +64,7 @@ struct client_args_s {
     int client_fd;
 };
 
-void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd)
+void accept_client_comm(int server_fd, struct sockaddr *server_address)
 {
     int server_addrlen = sizeof(*server_address);
     int client_num = 0;
@@ -78,14 +77,14 @@ void accept_client_comm(int server_fd, struct sockaddr *server_address, int *cli
             exit(EXIT_FAILURE);
         }
 
-        *client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
-        if (*client_fd < 0) {
+        int client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
+        if (client_fd < 0) {
             printf("Server failed to accept client's connection\n");
             exit(EXIT_FAILURE);
         }
 
         client_num++;
-        args->client_fd = *client_fd;
+        args->client_fd = client_fd;
         printf("[SERVER] Client %d is connected. Waiting for messages...\n", client_num);
         if (pthread_create(&client_thread_id[client_num - 1], NULL, handle_client_comm, (void *) args) != 0) {
             printf("Error in creating thread!\n");
