@@ -68,11 +68,13 @@ int main() {
 void handle_client_comm(int client_fd)
 {
     char client_msg[CLIENT_MSG_STR_LEN];
+    int client_msg_len;
+
     while (1)
     {
         memset(client_msg, 0, CLIENT_MSG_STR_LEN);
 
-        int client_msg_len = recv(client_fd, client_msg, sizeof(client_msg) - 1, 0);
+        client_msg_len = recv(client_fd, client_msg, sizeof(client_msg) - 1, 0);
         if (client_msg_len <= 0) {
             printf("[SERVER] Client disconnected.\n");
             break;
