@@ -29,9 +29,8 @@ int main() {
 
     struct sockaddr_in serv_addr;
     init_servaddr(&serv_addr);
-    if ((connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0)
-    {
-	    perror("Client cannot connect to server!\n");
+    if ((connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) {
+	    perror("Client cannot connect to server");
 	    return -1;
     }
     printf("[CLIENT] Client is successfully connected to server!\n");
@@ -55,8 +54,7 @@ int main() {
             continue;
 
         // Send the client string to server
-        if (send(client_fd, client_msg, strlen(client_msg), 0) == -1)
-        {
+        if (send(client_fd, client_msg, strlen(client_msg), 0) == -1) {
             perror("Sending failed!");
             break;
         }
