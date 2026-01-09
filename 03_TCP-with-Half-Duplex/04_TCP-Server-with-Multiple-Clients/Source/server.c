@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+#define SERVER_MSG_STR          "Acknowledged from server!"
+#define SERVER_PORT             8080
+#define CLIENT_MSG_STR_LEN      1024
+
+#define SOCKET_CREATION_FAILED      -1
+
+void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd);
+int handle_client_comm(int client_fd);
+
+int main() {
+
+    // 1. Create socket file descriptor
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == SOCKET_CREATION_FAILED) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+#ifdef SERVER_REUSE_ADDR
+    int opt = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("Socket failed to be reused!");
+        exit(EXIT_FAILURE);
+    }
+#endif
+
+    // 2. Bind the socket to the desired port
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons(SERVER_PORT);
+    if (bind(server_fd, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // 3. Listen for incoming connections
+    if (listen(server_fd, 3) < 0) {
+        perror("listen failed");
+        exit(EXIT_FAILURE);
+    }
+    printf("[SERVER] TCP server is listening...\n");
+
+    int client_fd;
+    accept_client_comm(server_fd, (struct sockaddr*) &server_address, &client_fd);
+
+    // 7. Close the connection
+    //close(client_fd);
+    close(server_fd);
+    return 0;
+}
+
+typedef enum {
+    CLIENT_DISCONNECTED,
+    CLIENT_CONNECTED
+} client_state;
+
+void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd)
+{
+    int server_addrlen = sizeof(*server_address);
+    *client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
+    printf("[SERVER] Client is connected. Waiting for messages...\n");
+
+    while (1) {
+        if (handle_client_comm(*client_fd) == CLIENT_DISCONNECTED) {
+            close(*client_fd);
+            break;
+        }
+    }
+}
+
+int handle_client_comm(int client_fd)
+{
+    char client_msg[CLIENT_MSG_STR_LEN];
+    int client_msg_len;
+
+    memset(client_msg, 0, CLIENT_MSG_STR_LEN);
+    client_msg_len = recv(client_fd, client_msg, sizeof(client_msg) - 1, 0);
+    if (client_msg_len <= 0) {
+        printf("[SERVER] Client disconnected.\n");
+        return CLIENT_DISCONNECTED;
+    }
+
+    client_msg[client_msg_len] = '\0';
+    printf("CLIENT: %s\n", client_msg);
+    send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+
+    return CLIENT_CONNECTED;
+}
