@@ -53,7 +53,7 @@ int main() {
     accept_client_comm(server_fd, (struct sockaddr*) &server_address, &client_fd);
 
     // 7. Close the connection
-    close(client_fd);
+    //close(client_fd);
     close(server_fd);
     return 0;
 }
@@ -69,10 +69,11 @@ void accept_client_comm(int server_fd, struct sockaddr *server_address, int *cli
     *client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
     printf("[SERVER] Client is connected. Waiting for messages...\n");
 
-    while (1)
-    {
-        if (handle_client_comm(*client_fd) == CLIENT_DISCONNECTED)
+    while (1) {
+        if (handle_client_comm(*client_fd) == CLIENT_DISCONNECTED) {
+            close(*client_fd);
             break;
+        }
     }
 }
 
@@ -91,5 +92,6 @@ int handle_client_comm(int client_fd)
     client_msg[client_msg_len] = '\0';
     printf("CLIENT: %s\n", client_msg);
     send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+
     return CLIENT_CONNECTED;
 }
