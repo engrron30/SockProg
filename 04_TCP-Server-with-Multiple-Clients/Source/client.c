@@ -20,10 +20,7 @@ int main() {
     // 1. Create the client socket
     int sock = 0;
     if (init_sock(&sock) == SOCKET_CREATION_FAILED)
-    {
-        perror("Socket creation failed!");
         exit(EXIT_FAILURE);
-    }
 
     struct sockaddr_in serv_addr;
     init_servaddr(&serv_addr);
