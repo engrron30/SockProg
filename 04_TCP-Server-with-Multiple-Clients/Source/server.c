@@ -10,7 +10,7 @@
 
 #define SOCKET_CREATION_FAILED      -1
 
-void handle_client_comm(int client_fd);
+void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd);
 
 int main() {
 
@@ -30,11 +30,11 @@ int main() {
 #endif
 
     // 2. Bind the socket to the desired port
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(SERVER_PORT);
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) == -1) {
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons(SERVER_PORT);
+    if (bind(server_fd, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
@@ -48,16 +48,15 @@ int main() {
     printf("[SERVER] TCP server is listening...\n");
 
     // 4. Accept a client connection
-    int addrlen = sizeof(address);
-    int client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
-    if (client_fd < 0)
-    {
-        perror("Accepting client connection failed!");
-        exit(EXIT_FAILURE);
-    }
+    int client_fd;
+    //accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+    //if (client_fd < 0)
+    //{
+    //    perror("Accepting client connection failed!");
+    //    exit(EXIT_FAILURE);
+    //}
 
-    printf("[SERVER] Client is connected. Waiting for messages...\n");
-    handle_client_comm(client_fd);
+    accept_client_comm(server_fd, (struct sockaddr*) &server_address, &client_fd);
 
     // 7. Close the connection
     close(client_fd);
@@ -65,16 +64,19 @@ int main() {
     return 0;
 }
 
-void handle_client_comm(int client_fd)
+void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd)
 {
     char client_msg[CLIENT_MSG_STR_LEN];
     int client_msg_len;
 
+    int server_addrlen = sizeof(*server_address);
+    *client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
+    printf("[SERVER] Client is connected. Waiting for messages...\n");
+
     while (1)
     {
         memset(client_msg, 0, CLIENT_MSG_STR_LEN);
-
-        client_msg_len = recv(client_fd, client_msg, sizeof(client_msg) - 1, 0);
+        client_msg_len = recv(*client_fd, client_msg, sizeof(client_msg) - 1, 0);
         if (client_msg_len <= 0) {
             printf("[SERVER] Client disconnected.\n");
             break;
@@ -82,6 +84,6 @@ void handle_client_comm(int client_fd)
 
         client_msg[client_msg_len] = '\0';
         printf("CLIENT: %s\n", client_msg);
-        send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+        send(*client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
     }
 }
