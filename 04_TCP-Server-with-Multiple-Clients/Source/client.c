@@ -46,6 +46,8 @@ int main() {
 
         if (strcmp(client_msg, "exit") == 0)
             break;
+        else if (strlen(client_msg) == 0)
+            continue;
 
         // Send the client string to server
         if (send(sock, client_msg, strlen(client_msg), 0) == -1)
