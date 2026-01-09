@@ -15,6 +15,11 @@
 int init_sock(int *sock_fd);
 void init_servaddr(struct sockaddr_in *serv_addr);
 
+typedef enum {
+    SERVER_DISCONNECTED = 0,
+    SERVER_CONNECTED
+} server_state;
+
 int main() {
 
     // 1. Create the client socket
@@ -57,7 +62,11 @@ int main() {
         }
 
         // Read the server's response
-        read(client_fd, server_msg, SERVER_MSG_STR_LEN);
+        if (read(client_fd, server_msg, SERVER_MSG_STR_LEN) == SERVER_DISCONNECTED) {
+            printf("No response from server!");
+            break;
+        }
+
         printf("SERVER: %s\n", server_msg);
     }
 
