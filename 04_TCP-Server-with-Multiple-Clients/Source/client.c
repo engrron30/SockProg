@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
 
 #define SERVER_IP_ADDR          "127.0.0.1"
 #define SERVER_PORT             8080
@@ -14,6 +15,7 @@
 
 int init_sock(int *sock_fd);
 void init_servaddr(struct sockaddr_in *serv_addr);
+int read_server_response(int sockfd, char *server_msg);
 
 typedef enum {
     SERVER_DISCONNECTED = 0,
@@ -60,8 +62,7 @@ int main() {
         }
 
         // Read the server's response
-        if (read(client_fd, server_msg, SERVER_MSG_STR_LEN) == SERVER_DISCONNECTED) {
-            printf("No response from server!");
+        if (read_server_response(client_fd, server_msg) == -1) {
             break;
         }
 
@@ -91,33 +92,30 @@ void init_servaddr(struct sockaddr_in *serv_addr)
     inet_pton(AF_INET, SERVER_IP_ADDR, &serv_addr->sin_addr);
 }
 
-/*void send_and_read_msg_to_server()
+#define WAIT_SERVER_RESPONSE_SECS       5
+#define WAIT_SERVER_RESPONSE_USECS      0
+
+int read_server_response(int sockfd, char *server_msg)
 {
-    char client_msg[CLIENT_MSG_STR_LEN];
-    char server_msg[SERVER_MSG_STR_LEN];
+    fd_set readfds;
+    struct timeval timeout;
+    int server_msg_len;
 
-    while (1)
-    {
-        memset(client_msg, '\0', sizeof(client_msg));
-        memset(server_msg, '\0', sizeof(server_msg));
+    FD_ZERO(&readfds);
+    FD_SET(sockfd, &readfds);
+    timeout.tv_sec = WAIT_SERVER_RESPONSE_SECS;
+    timeout.tv_usec = WAIT_SERVER_RESPONSE_USECS;
 
-        // Create client message from user's input
-        printf("CLIENT: ");
-        fgets(client_msg, sizeof(client_msg), stdin);
-        client_msg[strcspn(client_msg, "\n")] = 0;
-
-        if (strcmp(client_msg, "exit") == 0)
-            break;
-
-        // Send the client string to server
-        if (send(sock, client_msg, strlen(client_msg), 0) == -1)
-        {
-            printf("Sending failed!\n");
-            break;
-        }
-
-        // Read the server's response
-        read(sock, server_msg, SERVER_MSG_STR_LEN);
-        printf("SERVER: %s\n", server_msg);
+    int ret = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
+    if (ret == -1) {
+        perror("Select() failed");
+        return -1;
+    } else if (ret == 0) {
+        printf("[CLIENT] Timeout! No response received.\n");
+        return -1;
     }
-}*/
+
+    server_msg_len = read(sockfd, server_msg, SERVER_MSG_STR_LEN - 1);
+    return 0;
+
+}
