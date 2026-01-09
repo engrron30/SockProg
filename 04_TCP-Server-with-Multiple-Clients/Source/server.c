@@ -51,6 +51,7 @@ int main() {
     if (client_fd < 0)
     {
         perror("Accepting client connection failed!");
+        exit(EXIT_FAILURE);
     }
     printf("[SERVER] Client is connected. Waiting for messages...\n");
 
