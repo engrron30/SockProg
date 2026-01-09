@@ -116,6 +116,13 @@ int read_server_response(int sockfd, char *server_msg)
     }
 
     server_msg_len = read(sockfd, server_msg, SERVER_MSG_STR_LEN - 1);
-    return 0;
+    if (server_msg_len == 0) {
+        printf("[CLIENT] Cannot connect to server!\n");
+        return -1;
+    } else if (server_msg_len < 0) {
+        printf("[CLIENT] Error in read\n");
+        return -1;
+    }
 
+    return 0;
 }
