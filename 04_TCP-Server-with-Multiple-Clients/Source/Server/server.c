@@ -3,15 +3,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #define SERVER_MSG_STR          "Acknowledged from server!"
 #define SERVER_PORT             8080
 #define CLIENT_MSG_STR_LEN      1024
+#define MAX_CLIENT_NUM          10
 
 #define SOCKET_CREATION_FAILED      -1
 
 void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd);
-int handle_client_comm(int client_fd);
+void *handle_client_comm(void *args);
 
 int main() {
 
@@ -59,20 +61,69 @@ typedef enum {
     CLIENT_CONNECTED
 } client_state;
 
+struct client_args_s {
+    int client_fd;
+};
+
 void accept_client_comm(int server_fd, struct sockaddr *server_address, int *client_fd)
 {
     int server_addrlen = sizeof(*server_address);
-    *client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
-    printf("[SERVER] Client is connected. Waiting for messages...\n");
+    int client_num = 0;
+    pthread_t client_thread_id[MAX_CLIENT_NUM];
 
     while (1) {
-        if (handle_client_comm(*client_fd) == CLIENT_DISCONNECTED) {
-            close(*client_fd);
-            break;
+        struct client_args_s *args = malloc(sizeof(struct client_args_s));
+        if (args == NULL) {
+            printf("Failed to allocate memory for client arguments!\n");
+            exit(EXIT_FAILURE);
+        }
+
+        *client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
+        if (*client_fd < 0) {
+            printf("Server failed to accept client's connection\n");
+            exit(EXIT_FAILURE);
+        }
+
+        client_num++;
+        args->client_fd = *client_fd;
+        printf("[SERVER] Client %d is connected. Waiting for messages...\n", client_num);
+        if (pthread_create(&client_thread_id[client_num - 1], NULL, handle_client_comm, (void *) args) != 0) {
+            printf("Error in creating thread!\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    for (int i = 0; i < client_num; i++) {
+        if (pthread_join(client_thread_id[i], NULL) != 0) {
+            printf("Error in waiting other threads to get finished!\n");
+            exit(EXIT_FAILURE);
         }
     }
 }
 
+void *handle_client_comm(void *args)
+{
+    struct client_args_s *client_args = (struct client_args_s *) args;
+    char client_msg[CLIENT_MSG_STR_LEN];
+    int client_msg_len;
+
+    memset(client_msg, 0, CLIENT_MSG_STR_LEN);
+    while (1) {
+        client_msg_len = recv(client_args->client_fd, client_msg, sizeof(client_msg) - 1, 0);
+        if (client_msg_len <= 0) {
+            printf("[SERVER] Client disconnected.\n");
+            close(client_args->client_fd);
+            free(client_args);
+            break;
+        }
+
+        client_msg[client_msg_len] = '\0';
+        printf("CLIENT: %s\n", client_msg);
+        send(client_args->client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+    }
+}
+
+/* handle_client_comm as normal function
 int handle_client_comm(int client_fd)
 {
     char client_msg[CLIENT_MSG_STR_LEN];
@@ -90,4 +141,4 @@ int handle_client_comm(int client_fd)
     send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
 
     return CLIENT_CONNECTED;
-}
+}*/
