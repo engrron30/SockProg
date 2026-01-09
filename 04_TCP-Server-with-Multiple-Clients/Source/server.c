@@ -10,6 +10,8 @@
 
 #define SOCKET_CREATION_FAILED      -1
 
+void handle_client_comm(int client_fd);
+
 int main() {
 
     // 1. Create socket file descriptor
@@ -53,9 +55,18 @@ int main() {
         perror("Accepting client connection failed!");
         exit(EXIT_FAILURE);
     }
-    printf("[SERVER] Client is connected. Waiting for messages...\n");
 
-    // 5. Read data from client
+    printf("[SERVER] Client is connected. Waiting for messages...\n");
+    handle_client_comm(client_fd);
+
+    // 7. Close the connection
+    close(client_fd);
+    close(server_fd);
+    return 0;
+}
+
+void handle_client_comm(int client_fd)
+{
     char client_msg[CLIENT_MSG_STR_LEN];
     while (1)
     {
@@ -71,10 +82,4 @@ int main() {
         printf("CLIENT: %s\n", client_msg);
         send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
     }
-
-    // 7. Close the connection
-    close(client_fd);
-    close(server_fd);
-    return 0;
 }
-
