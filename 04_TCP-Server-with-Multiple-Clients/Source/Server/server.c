@@ -62,6 +62,7 @@ typedef enum {
 
 struct client_args_s {
     int client_fd;
+    int client_id;
 };
 
 void accept_client_comm(int server_fd, struct sockaddr *server_address)
@@ -85,6 +86,7 @@ void accept_client_comm(int server_fd, struct sockaddr *server_address)
 
         client_num++;
         args->client_fd = client_fd;
+        args->client_id = client_num;
         printf("[SERVER] Client %d is connected. Waiting for messages...\n", client_num);
         if (pthread_create(&client_thread_id[client_num - 1], NULL, handle_client_comm, (void *) args) != 0) {
             printf("Error in creating thread!\n");
@@ -110,14 +112,14 @@ void *handle_client_comm(void *args)
     while (1) {
         client_msg_len = recv(client_args->client_fd, client_msg, sizeof(client_msg) - 1, 0);
         if (client_msg_len <= 0) {
-            printf("[SERVER] Client disconnected.\n");
+            printf("[SERVER] Client %d disconnected.\n", client_args->client_id);
             close(client_args->client_fd);
             free(client_args);
             break;
         }
 
         client_msg[client_msg_len] = '\0';
-        printf("CLIENT: %s\n", client_msg);
+        printf("CLIENT %d: %s\n", client_args->client_id, client_msg);
         send(client_args->client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
     }
 }
