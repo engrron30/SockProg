@@ -130,7 +130,7 @@ exit:
     free(client_args);
 }
 
-/* handle_client_comm as normal function
+#ifdef HANDLE_CLIENT_COMM_AS_INT_FUNC
 int handle_client_comm(int client_fd)
 {
     char client_msg[CLIENT_MSG_STR_LEN];
@@ -148,4 +148,5 @@ int handle_client_comm(int client_fd)
     send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
 
     return CLIENT_CONNECTED;
-}*/
+}
+#endif
