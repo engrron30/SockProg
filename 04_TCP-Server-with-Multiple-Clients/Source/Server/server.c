@@ -106,22 +106,28 @@ void *handle_client_comm(void *args)
 {
     struct client_args_s *client_args = (struct client_args_s *) args;
     char client_msg[CLIENT_MSG_STR_LEN];
-    int client_msg_len;
+    int client_msg_len, send_ret;
 
     memset(client_msg, 0, CLIENT_MSG_STR_LEN);
     while (1) {
         client_msg_len = recv(client_args->client_fd, client_msg, sizeof(client_msg) - 1, 0);
         if (client_msg_len <= 0) {
             printf("[SERVER] Client %d disconnected.\n", client_args->client_id);
-            close(client_args->client_fd);
-            free(client_args);
-            break;
+            goto exit;
         }
 
         client_msg[client_msg_len] = '\0';
         printf("CLIENT %d: %s\n", client_args->client_id, client_msg);
-        send(client_args->client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+        send_ret = send(client_args->client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+        if (send_ret < 0) {
+            printf("[SERVER] Sending failed to client %d\n.", client_args->client_id);
+            goto exit;
+        }
     }
+
+exit:
+    close(client_args->client_fd);
+    free(client_args);
 }
 
 /* handle_client_comm as normal function
