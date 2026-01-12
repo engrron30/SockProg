@@ -120,7 +120,7 @@ void *handle_client_comm(void *args)
         printf("CLIENT %d: %s\n", client_args->client_id, client_msg);
         send_ret = send(client_args->client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
         if (send_ret < 0) {
-            printf("[SERVER] Sending failed to client %d\n.", client_args->client_id);
+            printf("[SERVER] Sending failed to Client %d\n.", client_args->client_id);
             goto exit;
         }
     }
@@ -134,7 +134,7 @@ exit:
 int handle_client_comm(int client_fd)
 {
     char client_msg[CLIENT_MSG_STR_LEN];
-    int client_msg_len;
+    int client_msg_len, send_ret;
 
     memset(client_msg, 0, CLIENT_MSG_STR_LEN);
     client_msg_len = recv(client_fd, client_msg, sizeof(client_msg) - 1, 0);
@@ -145,7 +145,10 @@ int handle_client_comm(int client_fd)
 
     client_msg[client_msg_len] = '\0';
     printf("CLIENT: %s\n", client_msg);
-    send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
+    if (send(client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0) < 0) {
+        printf("[SERVER] Sending failed to Client %d.\n", client_args->client_id);
+        return CLIENT_DISCONNECTED;
+    }
 
     return CLIENT_CONNECTED;
 }
