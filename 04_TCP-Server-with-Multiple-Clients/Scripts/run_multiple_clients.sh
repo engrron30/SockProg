@@ -12,5 +12,5 @@ fi
 
 for i in $(seq 1 $CLIENT_NUM_MAX); do
     echo "[CLIENT $i] Starting the client..."
-    "$CLIENT_BIN &"
+    "$CLIENT_BIN" &
 done
