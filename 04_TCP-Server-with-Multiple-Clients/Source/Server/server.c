@@ -6,6 +6,7 @@
 #include <pthread.h>
 
 #include "Common/config_socket.h"
+#include "dynarray/dynarray.h"
 
 #define SERVER_MSG_STR              "Acknowledged from server!"
 #define SERVER_PORT                 8080
