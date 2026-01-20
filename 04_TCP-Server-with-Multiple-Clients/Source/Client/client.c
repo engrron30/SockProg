@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 
+#include "Common/config_socket.h"
+
 #define SERVER_IP_ADDR          "127.0.0.1"
 #define SERVER_PORT             8080
 #define SERVER_MSG_STR_LEN      1024
@@ -13,7 +15,6 @@
 
 #define SOCKET_CREATION_FAILED  -1
 
-int init_sock(int *sock_fd);
 void init_servaddr(struct sockaddr_in *serv_addr);
 int read_server_response(int sockfd, char *server_msg);
 
@@ -74,7 +75,7 @@ int main() {
     return 0;
 }
 
-int init_sock(int *sock_fd)
+/*int init_sock(int *sock_fd)
 {
     *sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (*sock_fd < 0) {
@@ -83,7 +84,7 @@ int init_sock(int *sock_fd)
     }
 
     return *sock_fd;
-}
+}*/
 
 void init_servaddr(struct sockaddr_in *serv_addr)
 {

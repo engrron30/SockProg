@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#include "config_socket.h"
+
 #define SERVER_MSG_STR              "Acknowledged from server!"
 #define SERVER_PORT                 8080
 #define CLIENT_MSG_STR_LEN          1024
