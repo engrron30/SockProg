@@ -75,17 +75,6 @@ int main() {
     return 0;
 }
 
-/*int init_sock(int *sock_fd)
-{
-    *sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (*sock_fd < 0) {
-        perror("Socket creation error");
-        return -1;
-    }
-
-    return *sock_fd;
-}*/
-
 void init_servaddr(struct sockaddr_in *serv_addr)
 {
     serv_addr->sin_family = AF_INET;
