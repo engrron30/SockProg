@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#include "config_socket.h"
+#include "Common/config_socket.h"
 
 #define SERVER_MSG_STR              "Acknowledged from server!"
 #define SERVER_PORT                 8080
@@ -19,12 +19,9 @@ void *handle_client_comm(void *args);
 
 int main() {
 
-    // 1. Create socket file descriptor
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == SOCKET_CREATION_FAILED) {
-        perror("socket failed");
+    int server_fd = 0;
+    if (init_sock(&server_fd) == SOCKET_CREATION_FAILED)
         exit(EXIT_FAILURE);
-    }
 
 #ifdef SERVER_REUSE_ADDR
     int opt = 1;
