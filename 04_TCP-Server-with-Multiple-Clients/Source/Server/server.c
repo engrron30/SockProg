@@ -16,6 +16,8 @@
 #define SOCKET_CREATION_FAILED      -1
 
 pthread_t client_thread_id[MAX_CLIENT_NUM];
+static int active_clients_num = 0;
+pthread_mutex_t active_clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void accept_client_comm(int server_fd, struct sockaddr *server_address);
 void *handle_client_comm(void *args);
@@ -70,14 +72,13 @@ struct client_args_s {
 void accept_client_comm(int server_fd, struct sockaddr *server_address)
 {
     int server_addrlen = sizeof(*server_address);
-    int client_num = 0;
 
     while (1) {
         int client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
         if (client_fd < 0) {
             printf("Server failed to accept client's connection\n");
             exit(EXIT_FAILURE);
-        } else if (client_num >= MAX_CLIENT_NUM) {
+        } else if (active_clients_num >= MAX_CLIENT_NUM) {
             printf("Maximum number of clients are connected. Try disconnecting first!\n");
             close(client_fd);
             continue;
@@ -90,14 +91,14 @@ void accept_client_comm(int server_fd, struct sockaddr *server_address)
         }
 
         args->client_fd = client_fd;
-        args->client_id = ++client_num;
-        printf("[SERVER] Client %d is connected. Waiting for messages...\n", client_num);
-        if (pthread_create(&client_thread_id[client_num - 1], NULL, handle_client_comm, (void *) args) != 0) {
+        args->client_id = ++active_clients_num;
+        printf("[SERVER] Client %d is connected. Waiting for messages...\n", active_clients_num);
+        if (pthread_create(&client_thread_id[active_clients_num - 1], NULL, handle_client_comm, (void *) args) != 0) {
             printf("Error in creating thread!\n");
             exit(EXIT_FAILURE);
         }
-    
-        pthread_detach(client_thread_id[client_num - 1]);
+
+        pthread_detach(client_thread_id[active_clients_num - 1]);
     }
 }
 
@@ -126,7 +127,14 @@ void *handle_client_comm(void *args)
 
 exit:
     close(client_args->client_fd);
+
+    pthread_mutex_lock(&active_clients_mutex);
+    active_clients_num--;
+    printf("[SERVER] Client %d disconnected. Active clients are %d.\n", client_args->client_id, active_clients_num);
+    pthread_mutex_unlock(&active_clients_mutex);
+
     free(client_args);
+    pthread_exit(NULL);
 }
 
 #ifdef HANDLE_CLIENT_COMM_AS_INT_FUNC
