@@ -11,9 +11,11 @@
 #define SERVER_MSG_STR              "Acknowledged from server!"
 #define SERVER_PORT                 8080
 #define CLIENT_MSG_STR_LEN          1024
-#define MAX_CLIENT_NUM              10
+#define MAX_CLIENT_NUM              2
 
 #define SOCKET_CREATION_FAILED      -1
+
+pthread_t client_thread_id[MAX_CLIENT_NUM];
 
 void accept_client_comm(int server_fd, struct sockaddr *server_address);
 void *handle_client_comm(void *args);
@@ -69,7 +71,6 @@ void accept_client_comm(int server_fd, struct sockaddr *server_address)
 {
     int server_addrlen = sizeof(*server_address);
     int client_num = 0;
-    pthread_t client_thread_id[MAX_CLIENT_NUM];
 
     while (1) {
         struct client_args_s *args = malloc(sizeof(struct client_args_s));
@@ -120,7 +121,7 @@ void *handle_client_comm(void *args)
         printf("CLIENT %d: %s\n", client_args->client_id, client_msg);
         send_ret = send(client_args->client_fd, SERVER_MSG_STR, strlen(SERVER_MSG_STR), 0);
         if (send_ret < 0) {
-            printf("[SERVER] Sending failed to Client %d\n.", client_args->client_id);
+            printf("[SERVER] Sending failed to Client %d.\n", client_args->client_id);
             goto exit;
         }
     }
