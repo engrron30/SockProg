@@ -73,33 +73,31 @@ void accept_client_comm(int server_fd, struct sockaddr *server_address)
     int client_num = 0;
 
     while (1) {
+        int client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
+        if (client_fd < 0) {
+            printf("Server failed to accept client's connection\n");
+            exit(EXIT_FAILURE);
+        } else if (client_num >= MAX_CLIENT_NUM) {
+            printf("Maximum number of clients are connected. Try disconnecting first!\n");
+            close(client_fd);
+            continue;
+        }
+
         struct client_args_s *args = malloc(sizeof(struct client_args_s));
         if (args == NULL) {
             printf("Failed to allocate memory for client arguments!\n");
             exit(EXIT_FAILURE);
         }
 
-        int client_fd = accept(server_fd, (struct sockaddr*) server_address, (socklen_t*) &server_addrlen);
-        if (client_fd < 0) {
-            printf("Server failed to accept client's connection\n");
-            exit(EXIT_FAILURE);
-        }
-
-        client_num++;
         args->client_fd = client_fd;
-        args->client_id = client_num;
+        args->client_id = ++client_num;
         printf("[SERVER] Client %d is connected. Waiting for messages...\n", client_num);
         if (pthread_create(&client_thread_id[client_num - 1], NULL, handle_client_comm, (void *) args) != 0) {
             printf("Error in creating thread!\n");
             exit(EXIT_FAILURE);
         }
-    }
-
-    for (int i = 0; i < client_num; i++) {
-        if (pthread_join(client_thread_id[i], NULL) != 0) {
-            printf("Error in waiting other threads to get finished!\n");
-            exit(EXIT_FAILURE);
-        }
+    
+        pthread_detach(client_thread_id[client_num - 1]);
     }
 }
 
